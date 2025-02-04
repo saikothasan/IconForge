@@ -30,11 +30,11 @@ export async function POST(request: Request) {
       const imageResponse = new ImageResponse(
         <div
           style={{
-            width: size.width,
-            height: size.height,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            width: `${size.width}px`,
+            height: `${size.height}px`,
             backgroundColor: backgroundColor,
           }}
         >
@@ -42,8 +42,10 @@ export async function POST(request: Request) {
             src={`data:image/png;base64,${Buffer.from(uint8Array).toString("base64")}`}
             width={size.width}
             height={size.height}
-            style={{ objectFit: "contain" }}
-            alt="Favicon"
+            alt={`Favicon ${size.width}x${size.height}`}
+            style={{
+              objectFit: "contain",
+            }}
           />
         </div>,
         {
@@ -52,8 +54,8 @@ export async function POST(request: Request) {
         },
       )
 
-      const arrayBuffer = await imageResponse.arrayBuffer()
-      zip.file(`${size.name}.${size.format}`, Buffer.from(arrayBuffer))
+      const faviconArrayBuffer = await imageResponse.arrayBuffer()
+      zip.file(`${size.name}.${size.format}`, Buffer.from(faviconArrayBuffer))
     }
 
     // Generate and add manifest
