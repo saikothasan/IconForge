@@ -2,9 +2,9 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 
 const faqItems = [
   {
-    question: "What is a favicon?",
+    question: "What is IconForge?",
     answer:
-      "A favicon is a small icon associated with a website or web page. It's displayed in the browser's address bar, tabs, bookmarks, and other areas to help users identify your site visually.",
+      "IconForge is a powerful favicon generator that creates high-quality icons for your website. It generates favicons in various formats and sizes, ensuring compatibility across all browsers, devices, and platforms.",
   },
   {
     question: "Why do I need different favicon sizes?",

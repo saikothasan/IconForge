@@ -3,7 +3,7 @@ import { generateManifest, generateBrowserConfigXml, FAVICON_SIZES } from "@/lib
 import { storage } from "@/lib/firebase"
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage"
 import JSZip from "jszip"
-import { ImageResponse } from "next/og"
+import sharp from "sharp"
 
 export async function POST(request: Request) {
   try {
@@ -18,44 +18,19 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 })
     }
 
-    // Read the file as an ArrayBuffer
-    const arrayBuffer = await file.arrayBuffer()
-    const uint8Array = new Uint8Array(arrayBuffer)
+    // Read the file as a Buffer
+    const buffer = Buffer.from(await file.arrayBuffer())
 
     // Create a zip file
     const zip = new JSZip()
 
-    // Generate favicons using Next.js Image API
+    // Generate favicons using sharp
     for (const size of FAVICON_SIZES) {
-      const imageResponse = new ImageResponse(
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: `${size.width}px`,
-            height: `${size.height}px`,
-            backgroundColor: backgroundColor,
-          }}
-        >
-          <img
-            src={`data:image/png;base64,${Buffer.from(uint8Array).toString("base64")}`}
-            width={size.width}
-            height={size.height}
-            alt={`Favicon ${size.width}x${size.height}`}
-            style={{
-              objectFit: "contain",
-            }}
-          />
-        </div>,
-        {
-          width: size.width,
-          height: size.height,
-        },
-      )
+      const resizedImage = await sharp(buffer)
+        .resize(size.width, size.height, { fit: "contain", background: backgroundColor })
+        .toBuffer()
 
-      const faviconArrayBuffer = await imageResponse.arrayBuffer()
-      zip.file(`${size.name}.${size.format}`, Buffer.from(faviconArrayBuffer))
+      zip.file(`${size.name}.${size.format}`, resizedImage)
     }
 
     // Generate and add manifest
