@@ -43,6 +43,7 @@ export async function POST(request: Request) {
             width={size.width}
             height={size.height}
             style={{ objectFit: "contain" }}
+            alt="Favicon"
           />
         </div>,
         {
