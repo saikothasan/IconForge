@@ -26,11 +26,16 @@ export async function POST(request: Request) {
 
     // Generate favicons using sharp
     for (const size of FAVICON_SIZES) {
-      const resizedImage = await sharp(buffer)
-        .resize(size.width, size.height, { fit: "contain", background: backgroundColor })
-        .toBuffer()
+      try {
+        const resizedImage = await sharp(buffer)
+          .resize(size.width, size.height, { fit: "contain", background: backgroundColor })
+          .toBuffer()
 
-      zip.file(`${size.name}.${size.format}`, resizedImage)
+        zip.file(`${size.name}.${size.format}`, resizedImage)
+      } catch (error) {
+        console.error(`Error generating favicon for size ${size.width}x${size.height}:`, error)
+        throw new Error(`Failed to generate favicon for size ${size.width}x${size.height}`)
+      }
     }
 
     // Generate and add manifest
@@ -55,7 +60,10 @@ export async function POST(request: Request) {
     })
   } catch (error) {
     console.error("Error generating favicons:", error)
-    return NextResponse.json({ error: "Failed to generate favicons" }, { status: 500 })
+    return NextResponse.json(
+      { error: "Failed to generate favicons", details: (error as Error).message },
+      { status: 500 },
+    )
   }
 }
 
